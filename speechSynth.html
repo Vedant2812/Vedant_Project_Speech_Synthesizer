@@ -11,6 +11,7 @@
   <!-- Main Stylesheet & Scripts -->
   <link rel="stylesheet" href="assets/styles/global.css" />
   <script src="assets/scripts/speechSynth.js" type="module"></script>
+  <script src="https://unpkg.com/launchdarkly-js-client-sdk@2"></script>
 </head>
 
 <body>
@@ -32,6 +33,38 @@
       <button>Press to Talk</button>
     </section>
   </main>
+  <script>
+    // Set up the user properties. This user should appear on your LaunchDarkly users dashboard
+    // soon after you run the demo.
+    var keyVal = "";
+    var possibleChar = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for (var i = 0; i < 5; i++)
+      keyVal += possibleChar.charAt(Math.floor(Math.random() * possibleChar.length));
+    
+    var user = {
+      key: 'example-user-key',
+    };
+
+    user.key = keyVal;
+
+    // Create a new LDClient instance with your environment-specific SDK key
+    var ldclient = LDClient.initialize('63883f4884052b117588d6a6', user);
+
+    function render() {
+      var flagValue = ldclient.variation('button-fancy', false);
+      if(flagValue) {
+        let button1 = document.querySelector("button");
+        
+        button1.style.backgroundColor = "blue";
+      }
+      console.log(flagValue);
+      console.log("SDK successfully connected! The value of button-fancy is " + flagValue + " for " + user.key);
+    }
+
+    ldclient.on('ready', render);
+    ldclient.on('change', render);
+  </script>
 </body>
 
 </html>
